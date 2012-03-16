@@ -1517,7 +1517,7 @@
         (!this.isXDomain() || io.util.ua.hasCORS)) {
       var self = this;
 
-      io.util.on(global, 'beforeunload', function () {
+      io.util.on(global, 'unload', function () {
         self.disconnectSync();
       }, false);
     }
@@ -2325,8 +2325,18 @@
       self.onData(ev.data);
     };
     this.websocket.onclose = function () {
-      self.onClose();
-      self.socket.setBuffer(true);
+      var isWebsocketClose = false;
+      for (var socketKey in window.io.sockets){
+        var socket = window.io.sockets[socketKey];
+        if (socket.transport.name == self.name){
+          isWebsocketClose = true;
+          break;
+        }
+      }
+      if (isWebsocketClose){
+        self.onClose();
+        self.socket.setBuffer(true);
+      }
     };
     this.websocket.onerror = function (e) {
       self.onError(e);
