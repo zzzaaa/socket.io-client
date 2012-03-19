@@ -3532,7 +3532,6 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
   , 'undefined' != typeof io ? io : module.parent.exports
   , this
 );
-
 /**
  * socket.io
  * Copyright(c) 2011 LearnBoost <dev@learnboost.com>
@@ -3667,15 +3666,22 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
     try {
       this.form.submit();
     } catch(e) {}
-
-    if (this.iframe.attachEvent) {
-      iframe.onreadystatechange = function () {
-        if (self.iframe.readyState == 'complete') {
-          complete();
+    if ( document.addEventListener )
+    {
+        this.iframe.onload = complete;
+    }
+    else
+    {
+        if ( this.iframe.attachEvent )
+	      {
+            this.iframe.onreadystatechange = function ()
+	          {
+                if (self.iframe.readyState == 'complete')
+	              {
+                    complete();
+                }
+            };
         }
-      };
-    } else {
-      this.iframe.onload = complete;
     }
 
     this.socket.setBuffer(true);
