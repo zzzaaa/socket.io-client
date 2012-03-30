@@ -1,4 +1,4 @@
-/*! Socket.IO.js build:0.9.2, development. Copyright(c) 2011 LearnBoost <dev@learnboost.com> MIT Licensed */
+/*! Socket.IO.js build:0.9.3, development. Copyright(c) 2011 LearnBoost <dev@learnboost.com> MIT Licensed */
 
 /**
  * socket.io
@@ -22,7 +22,7 @@
    * @api public
    */
 
-  io.version = '0.9.2';
+  io.version = '0.9.3';
 
   /**
    * Protocol implemented.
@@ -1668,10 +1668,10 @@
       self.sessionid = sid;
       self.closeTimeout = close * 1000;
       self.heartbeatTimeout = heartbeat * 1000;
-      self.transports = io.util.intersect(
+      self.transports = transports ? io.util.intersect(
           transports.split(',')
         , self.options.transports
-      );
+      ) : self.options.transports;
 
       self.setHeartbeatTimeout();
 
@@ -1714,7 +1714,7 @@
         });
       }
 
-      connect(self.options.transports);
+      connect(self.transports);
 
       self.once('connect', function (){
         clearTimeout(self.connectTimeoutTimer);
@@ -3001,7 +3001,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
    *
    * @api public
    */
-  
+
   exports.XHR = XHR;
 
   /**
@@ -3118,7 +3118,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
   /**
    * Disconnects the established `XHR` connection.
    *
-   * @returns {Transport} 
+   * @returns {Transport}
    * @api public
    */
 
@@ -3176,7 +3176,11 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
   XHR.check = function (socket, xdomain) {
     try {
-      if (io.util.request(xdomain)) {
+      var request = io.util.request(xdomain),
+          usesXDomReq = (global.XDomainRequest && request instanceof XDomainRequest),
+          socketProtocol = (socket && socket.options && socket.options.secure ? 'https:' : 'http:'),
+          isXProtocol = (socketProtocol != global.location.protocol);
+      if (request && !(usesXDomReq && isXProtocol)) {
         return true;
       }
     } catch(e) {}
@@ -3185,8 +3189,8 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
   };
 
   /**
-   * Check if the XHR transport supports corss domain requests.
-   * 
+   * Check if the XHR transport supports cross domain requests.
+   *
    * @returns {Boolean}
    * @api public
    */
